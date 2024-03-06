@@ -1,24 +1,37 @@
 import { browser, expect } from '@wdio/globals';
 import IndexPage from '../pageobjects/index.page.js';
 
-describe('Order application', () => {
-
+describe('Orders page', () => {
     beforeEach(async () => {
         await IndexPage.open()
     })
-    it('load', async () => {
+    it('loads', async () => {
         await expect(IndexPage.title).toBePresent()
     })
-    it("list orders", async () => {
-        await browser.waitUntil(async () => {
+    describe("list", () => {
+        it("loads", async () => {
+            await browser.waitUntil(async () => {
+                const listItems = await IndexPage.items();
+                return listItems.length > 5;
+            }, {
+                timeout: 5000,
+                timeoutMsg: 'Orders did not load within 5 seconds'
+            });
             const listItems = await IndexPage.items();
-            return listItems.length > 5;
-        }, {
-            timeout: 5000,
-            timeoutMsg: 'Orders did not load within 5 seconds'
-        });
-        const listItems = await IndexPage.items();
-        await expect(listItems).toBeElementsArrayOfSize({ gte: 3 })
+            await expect(listItems).toBeElementsArrayOfSize({ gte: 3 })
+        })
+        it("open details on click", async () => {
+            await browser.waitUntil(async () => {
+                const listItems = await IndexPage.items();
+                return listItems.length > 1;
+            }, {
+                timeout: 5000,
+                timeoutMsg: 'Orders did not load within 5 seconds'
+            });
+            const listItems = await IndexPage.items();
+            await listItems[0].click();
+            await expect(await browser.getUrl()).toContain("#/Orders/");
+        })
     })
     describe("Search bar", () => {
         it("focus and typing", async () => {
